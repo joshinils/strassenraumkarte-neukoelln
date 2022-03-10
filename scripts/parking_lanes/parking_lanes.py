@@ -13,7 +13,12 @@ import time
 # working directory, see https://stackoverflow.com/a/65543293/729221
 from console.console import _console
 from qgis import processing
-from qgis.core import NULL, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsCoordinateTransformContext, QgsFeatureRequest, QgsField, QgsLayerTreeLayer, QgsProcessingFeatureSourceDefinition, QgsProject, QgsProperty, QgsVectorFileWriter, QgsVectorLayer, QVariant  # NOQA
+from qgis.core import (
+    NULL, QgsCoordinateReferenceSystem, QgsCoordinateTransform,
+    QgsCoordinateTransformContext, QgsFeatureRequest, QgsField,
+    QgsLayerTreeLayer, QgsProcessingFeatureSourceDefinition, QgsProject,
+    QgsProperty, QgsVectorFileWriter, QgsVectorLayer, QVariant
+)
 
 # V a r i a b l e s   a n d   S e t t i n g s
 

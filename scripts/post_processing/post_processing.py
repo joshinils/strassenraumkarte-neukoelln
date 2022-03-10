@@ -13,7 +13,12 @@ import random
 import time
 
 from qgis import processing
-from qgis.core import NULL, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsCoordinateTransformContext, QgsFeature, QgsFeatureRequest, QgsField, QgsGeometry, QgsPointXY, QgsProcessingFeatureSourceDefinition, QgsProject, QgsProperty, QgsVectorFileWriter, QgsVectorLayer, QVariant  # NOQA
+from qgis.core import (
+    NULL, QgsCoordinateReferenceSystem, QgsCoordinateTransform,
+    QgsCoordinateTransformContext, QgsFeature, QgsFeatureRequest, QgsField,
+    QgsGeometry, QgsPointXY, QgsProcessingFeatureSourceDefinition, QgsProject,
+    QgsProperty, QgsVectorFileWriter, QgsVectorLayer, QVariant
+)
 
 # V a r i a b l e s   a n d   S e t t i n g s
 
