@@ -1,0 +1,7 @@
+[flake8]
+max_line_length=3000
+in-place = true
+ignore=W503, # ignore old opposite of W504
+       W391 # cause django generates empty files with two empty lines...
+       F405 # cause of star-imports, too many to care, TODO remove this line
+       F821 # ignore uses of NONE, TODO remove this line
