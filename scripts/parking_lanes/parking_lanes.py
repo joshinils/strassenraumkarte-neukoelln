@@ -1,4 +1,4 @@
-""""
+"""
 Parking lane analysis with OSM data
 
 OSM data post-processing for QGIS/PyGIS for rendering the parkingmap at
@@ -12,12 +12,13 @@ import time
 
 # working directory, see https://stackoverflow.com/a/65543293/729221
 from console.console import _console
+from PyQt5.QtCore import QVariant
 from qgis import processing
 from qgis.core import (
     NULL, QgsCoordinateReferenceSystem, QgsCoordinateTransform,
     QgsCoordinateTransformContext, QgsFeatureRequest, QgsField,
     QgsLayerTreeLayer, QgsProcessingFeatureSourceDefinition, QgsProject,
-    QgsProperty, QgsVectorFileWriter, QgsVectorLayer, QVariant
+    QgsProperty, QgsVectorFileWriter, QgsVectorLayer
 )
 
 # V a r i a b l e s   a n d   S e t t i n g s

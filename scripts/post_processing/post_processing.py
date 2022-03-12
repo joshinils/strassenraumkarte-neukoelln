@@ -12,12 +12,13 @@ import math
 import random
 import time
 
+from PyQt5.QtCore import QVariant
 from qgis import processing
 from qgis.core import (
     NULL, QgsCoordinateReferenceSystem, QgsCoordinateTransform,
     QgsCoordinateTransformContext, QgsFeature, QgsFeatureRequest, QgsField,
     QgsGeometry, QgsPointXY, QgsProcessingFeatureSourceDefinition, QgsProject,
-    QgsProperty, QgsVectorFileWriter, QgsVectorLayer, QVariant
+    QgsProperty, QgsVectorFileWriter, QgsVectorLayer
 )
 
 # V a r i a b l e s   a n d   S e t t i n g s
@@ -1135,7 +1136,13 @@ if proc_lane_markings:
     if not layer_raw_area_highway_polygons:
         layer_raw_area_highway_polygons = QgsVectorLayer(data_dir + 'area_highway.geojson|geometrytype=Polygon', 'area_highway (raw)', 'ogr')
     layer_junction_areas = layer_raw_area_highway_polygons
-    layer_junction_areas = processing.run('qgis:extractbyexpression', {'INPUT': layer_junction_areas, 'EXPRESSION': '"junction" = \'yes\' OR "crossing" = \'traffic_signals\' OR "crossing" = \'marked\' OR "crossing" = \'zebra\'', 'OUTPUT': 'memory:'})['OUTPUT']
+    layer_junction_areas = processing.run(
+        'qgis:extractbyexpression',
+        {
+            'INPUT': layer_junction_areas,
+            'EXPRESSION': """"junction" = 'yes' OR "crossing" = 'traffic_signals' OR "crossing" = 'marked' OR "crossing" = 'zebra'', 'OUTPUT': 'memory:"""
+        }
+    )['OUTPUT']
     # QgsProject.instance().addMapLayer(layer_junction_areas, True) # <----------------------------------------------------------------------------
 
     if not layer_raw_highway_points:
