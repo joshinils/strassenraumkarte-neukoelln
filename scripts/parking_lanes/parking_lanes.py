@@ -6,9 +6,9 @@ https://supaplexosm.github.io/strassenraumkarte-neukoelln/?map=parkingmap
 
 > version/date: 2021-12-28
 """
+import logging
 import math
 import os
-import time
 
 # working directory, see https://stackoverflow.com/a/65543293/729221
 from console.console import _console
@@ -21,9 +21,23 @@ from qgis.core import (
     QgsProperty, QgsVectorFileWriter, QgsVectorLayer
 )
 
+logging.basicConfig(
+    filename='parking_lanes.log',
+    level=logging.DEBUG,
+    format="""%(asctime)s[%(process)7d][%(threadName)23s][%(levelname)8s] %(message)s [%(pathname)s:%(lineno)s][%(funcName)s]"""
+)
+
+# disable debug logging from imports
+logging.getLogger("requests").setLevel(logging.WARNING)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+
+logging.info("wtf")
+
+
 # V a r i a b l e s   a n d   S e t t i n g s
 
 dir = _console.console.tabEditorWidget.currentWidget().path.replace("parking_lanes.py", "")
+
 
 # coordinate reference system – storage options
 # Attention: EPSG:25833 (ETRS89 / UTM zone 33N) is used here – other CRS may be necessary at other locations.
@@ -117,7 +131,7 @@ def prepareLayers():
         _type_: _description_
     """
 
-    print(time.strftime('%H:%M:%S', time.localtime()), 'Prepare street data...')
+    logging.info('Prepare street data...')
     layer_raw = QgsVectorLayer(dir + 'data/input.geojson|geometrytype=LineString', 'streets (raw)', 'ogr')
     layer_crossing = QgsVectorLayer(dir + 'data/input.geojson|geometrytype=Point', 'pedestrian crossings (raw)', 'ogr')
 
@@ -125,7 +139,7 @@ def prepareLayers():
     if not fillBaseAttributes(layer_raw, False):
         return False
 
-    print(time.strftime('%H:%M:%S', time.localtime()), 'Insert street data...')
+    logging.info('Insert street data...')
 
     # Straßen-Input in einen Straßen- und einen Einfahrtlayer teilen
     QgsVectorFileWriter.writeAsVectorFormatV2(layer_raw, dir + 'data/streets_processed.geojson', transform_context, save_options)
@@ -138,7 +152,7 @@ def prepareLayers():
     layer_crossing = QgsProject.instance().addMapLayer(QgsVectorLayer(dir + 'data/crossing.geojson', 'pedestrian crossings', 'ogr'), False)
 
     # Parkstreifen separat vorbereiten
-    print(time.strftime('%H:%M:%S', time.localtime()), 'Insert parking lane data...')
+    logging.info('Insert parking lane data...')
     QgsVectorFileWriter.writeAsVectorFormatV2(layer_raw, dir + 'data/parking_lanes/parking_lanes_left.geojson', transform_context, save_options)
     QgsVectorFileWriter.writeAsVectorFormatV2(layer_raw, dir + 'data/parking_lanes/parking_lanes_right.geojson', transform_context, save_options)
     layer_parking_left = QgsVectorLayer(dir + 'data/parking_lanes/parking_lanes_left.geojson', 'parking lane left', 'ogr')
@@ -146,7 +160,7 @@ def prepareLayers():
     # layer_parking_left = QgsProject.instance().addMapLayer(QgsVectorLayer(dir + 'parking_lanes_left.geojson', 'parking lane left', 'ogr'))
     # layer_parking_right = QgsProject.instance().addMapLayer(QgsVectorLayer(dir + 'parking_lanes_right.geojson', 'parking lane right', 'ogr'))
 
-    print(time.strftime('%H:%M:%S', time.localtime()), 'Edit street data: Clean up dataset...')
+    logging.info('Edit street data: Clean up dataset...')
     layer_street.startEditing()
     layer_service.startEditing()
 
@@ -168,7 +182,7 @@ def prepareLayers():
     layer_service.commitChanges()
 
     # zunächst alle unbenötigten Attribute löschen - (2) für Parkstreifenlayer
-    print(time.strftime('%H:%M:%S', time.localtime()), 'Edit parking lane data: Clean up dataset...')
+    logging.info('Edit parking lane data: Clean up dataset...')
     layer_parking_left.startEditing()
     layer_parking_right.startEditing()
 
@@ -257,7 +271,7 @@ def fillBaseAttributes(layer, commit):
     id_error = layer.fields().indexOf('error_output')
 
     if layer.fields().indexOf('parking:lane:both') + id_parking_left + id_parking_right == -3:
-        print(time.strftime('%H:%M:%S', time.localtime()), 'Input dataset ("' + dir + 'data/input.geojson' + '") does not contain parking lane information ("parking:lane:*"). Processing aborted.')
+        logging.info('Input dataset ("' + dir + 'data/input.geojson' + '") does not contain parking lane information ("parking:lane:*"). Processing aborted.')
         return(False)
 
     # Basisattribute ermitteln
@@ -1335,7 +1349,7 @@ if layers:
     layer_service.loadNamedStyle(dir + 'styles/street_simple.qml')
 
     # separate and bundle parking lane attributes to a left and a right layer
-    print(time.strftime('%H:%M:%S', time.localtime()), 'Processing parking lane data...')
+    logging.info('Processing parking lane data...')
     prepareParkingLane(layer_parking_left, 'left', True)
     prepareParkingLane(layer_parking_right, 'right', True)
 
@@ -1459,7 +1473,7 @@ if layers:
     )['OUTPUT']
     QgsProject.instance().addMapLayer(layer_parking, False)
 
-    print(time.strftime('%H:%M:%S', time.localtime()), 'Processing intersection/driveway zones...')
+    logging.info('Processing intersection/driveway zones...')
 
     # separately cut off parking lanes on service roads near the intersection area
     # Select service roads with parking lane information, determine intersections with roads and buffer these by the width of the road + 5 metre distance
@@ -1564,7 +1578,7 @@ if layers:
     layer_parking = bufferIntersection(layer_parking, layer_service, 'max("width_proc" / 2, 2)', 'driveways', NULL)
 
     # calculate kerb intersection points
-    print(time.strftime('%H:%M:%S', time.localtime()), 'Processing kerb intersection points...')
+    logging.info('Processing kerb intersection points...')
     intersects = getKerbIntersections(layer_street)
 
     # locate 5-metre buffers around kerb intersections and cut from parking lanes
@@ -1648,4 +1662,4 @@ if layers:
     QgsProject.instance().addMapLayer(layer_parking_chain, False)
     group_parking.insertChildNode(0, QgsLayerTreeLayer(layer_parking_chain))
 
-    print(time.strftime('%H:%M:%S', time.localtime()), 'Completed. Generated parking lane data can now be saved.')
+    logging.info('Completed. Generated parking lane data can now be saved.')
